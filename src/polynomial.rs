@@ -14,10 +14,6 @@ impl From<Vec<i64>> for Polynomial{
     }
 }
 
-impl Polynomial{
-    fn new
-}
-
 impl Add for &Polynomial {
     type Output = Polynomial;
     fn add(self, other: Self) -> Polynomial {
