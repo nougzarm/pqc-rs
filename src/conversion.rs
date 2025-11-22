@@ -28,11 +28,10 @@ pub fn BytesToBits(bytes: Vec<u8>) -> BitVec<u8, Lsb0> {
 pub fn ByteEncode<const N: usize>(F: Vec<i64>, d: usize) -> Vec<u8> {
     let mut bits = bitvec![u8, Lsb0; 0; N * d];
     for i in 0..N {
-        let mut a = F[i];
+        let a = F[i];
         for j in 0..d {
-            let temp = a % 2;
-            bits.set(i * d + j, temp == 1);
-            a = (a - temp) / 2;
+            let bit_is_set = ((a >> j) & 1) == 1;
+            bits.set(i * d + j, bit_is_set);
         }
     }
     BitsToBytes(bits)
