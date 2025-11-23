@@ -10,10 +10,6 @@ use std::{
 
 use crate::constants::PolyParams;
 
-pub fn mod_q(x: i64, q: i64) -> i64 {
-    ((x % q) + q) % q
-}
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Polynomial<P: PolyParams> {
     pub coeffs: Vec<i64>,
@@ -53,7 +49,7 @@ impl<P: PolyParams> Add for &Polynomial<P> {
             .coeffs
             .iter()
             .zip(rhs.coeffs.iter())
-            .map(|(a, b)| mod_q(a + b, P::Q))
+            .map(|(a, b)| (a + b).rem_euclid(P::Q))
             .collect();
         Polynomial::<P> {
             coeffs: new_coeffs,
@@ -69,7 +65,7 @@ impl<P: PolyParams> Sub for &Polynomial<P> {
             .coeffs
             .iter()
             .zip(rhs.coeffs.iter())
-            .map(|(a, b)| mod_q(a - b, P::Q))
+            .map(|(a, b)| (a - b).rem_euclid(P::Q))
             .collect();
         Polynomial::<P> {
             coeffs: new_coeffs,
@@ -89,10 +85,10 @@ impl<P: PolyParams> Mul for &Polynomial<P> {
 
                 let k = i + j;
                 if k < P::N {
-                    new_coeffs[k] = mod_q(new_coeffs[k] + pdt, P::Q);
+                    new_coeffs[k] = (new_coeffs[k] + pdt).rem_euclid(P::Q);
                 } else {
                     let k_prime = k - P::N;
-                    new_coeffs[k_prime] = mod_q(new_coeffs[k_prime] - pdt, P::Q);
+                    new_coeffs[k_prime] = (new_coeffs[k_prime] - pdt).rem_euclid(P::Q);
                 }
             }
         }

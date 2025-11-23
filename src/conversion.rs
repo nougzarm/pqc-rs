@@ -1,7 +1,5 @@
 use bitvec::prelude::*;
 
-use crate::polynomial::mod_q;
-
 /// Algorithm 3 : BitsToBytes(b)
 /// Converts a bit array (of a length that is a multiple of eight) into an array of bytes.
 ///
@@ -52,7 +50,7 @@ pub fn ByteDecode<const N: usize, const Q: i64>(bytes: Vec<u8>, d: usize) -> Vec
     let bits = BytesToBits(bytes);
     for i in 0..N {
         for j in 0..d {
-            f[i] = (f[i] + (bits[i * d + j] as i64) * (1 << j)) % m
+            f[i] = (f[i] + (bits[i * d + j] as i64) * (1 << j)).rem_euclid(m)
         }
     }
     f
