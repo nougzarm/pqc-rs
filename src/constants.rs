@@ -12,7 +12,7 @@ impl PolyParams for KyberParams {
     const N: usize = 256;
     const N_inv: i64 = 3303;
     const Q: i64 = 3329;
-    const ZETA: i64 = 1729;
+    const ZETA: i64 = 17;
 
     fn zetas() -> &'static [i64] {
         &[

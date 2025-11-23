@@ -257,9 +257,9 @@ impl<P: PolyParams> Mul for &PolynomialNTT<P> {
 
         let zetas = P::zetas().to_vec();
         for i in 0..128 {
-            let gamma = (zetas[i] * zetas[i] * P::ZETA).rem_euclid(P::Q);
+            let gamma = ((zetas[i] * zetas[i]).rem_euclid(P::Q) * P::ZETA).rem_euclid(P::Q);
             new_coeffs[2 * i] = (self[2 * i] * rhs[2 * i]
-                + self[2 * i + 1] * rhs[2 * i + 1] * gamma)
+                + (self[2 * i + 1] * rhs[2 * i + 1]).rem_euclid(P::Q) * gamma)
                 .rem_euclid(P::Q);
             new_coeffs[2 * i + 1] =
                 (self[2 * i] * rhs[2 * i + 1] + self[2 * i + 1] * rhs[2 * i]).rem_euclid(P::Q);
@@ -298,12 +298,23 @@ mod tests {
         println!("Polynomial f + g: {}", &f + &g);
         println!("Polynomial f * g: {}", &f * &g);
 
-        let mut a_coeffs: Vec<i64> = vec![1, 0, 2, 3];
-        a_coeffs.extend_from_slice(&[0i64; KyberParams::N - 4]);
+        let mut a_coeffs: Vec<i64> = vec![1, 0, 2, 3, 18, 32, 72, 21, 23, 1, 0, 9, 287, 23];
+        a_coeffs.extend_from_slice(&[0i64; KyberParams::N - 14]);
         let a = Polynomial::<KyberParams>::from(a_coeffs);
         assert_eq!(
             Polynomial::<KyberParams>::from_ntt(&a.to_ntt()).coeffs,
             a.coeffs
+        );
+
+        let mut p1_coeffs: Vec<i64> = vec![1, 2, 4, 4, 3, 1, 6, 6, 4, 3];
+        p1_coeffs.extend_from_slice(&[0i64; KyberParams::N - 10]);
+        let mut p2_coeffs: Vec<i64> = vec![3, 4, 8, 10, 27, 273, 12, 982, 12, 42, 9];
+        p2_coeffs.extend_from_slice(&[0i64; KyberParams::N - 11]);
+        let p1 = Polynomial::<KyberParams>::from(p1_coeffs);
+        let p2 = Polynomial::<KyberParams>::from(p2_coeffs);
+        assert_eq!(
+            Polynomial::<KyberParams>::from_ntt(&(&p1.to_ntt() * &p2.to_ntt())).coeffs,
+            (&p1 * &p2).coeffs
         );
     }
 }
