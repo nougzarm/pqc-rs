@@ -1,7 +1,7 @@
-mod constants;
-mod conversion;
-mod hash;
-mod kem_scheme;
-mod pke_scheme;
-mod polynomial;
-mod utils;
+pub mod constants;
+pub mod conversion;
+pub mod hash;
+pub mod polynomial;
+pub mod utils;
+
+pub mod kyber;

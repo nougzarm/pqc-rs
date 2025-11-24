@@ -1,7 +1,7 @@
 use rand::rngs::OsRng;
 use rand::RngCore;
 
-use crate::{constants::PolyParams, pke_scheme::K_PKE};
+use crate::{constants::PolyParams, Kyber::pke_scheme::K_PKE};
 use crate::hash::{g, h, j};
 
 pub struct ML_KEM<P: PolyParams>(pub K_PKE<P>);
