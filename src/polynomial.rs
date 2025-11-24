@@ -8,7 +8,7 @@ use std::{
     ops::{Add, Index, IndexMut, Mul, Sub},
 };
 
-use crate::constants::PolyParams;
+use crate::{constants::PolyParams, conversion::BytesToBits};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Polynomial<P: PolyParams> {
@@ -37,6 +37,36 @@ impl<P: PolyParams> Polynomial<P> {
     pub fn new(coeffs: Vec<i64>) -> Self {
         if coeffs.len() != P::N {
             panic!("The polynomial must have exactly {} coefficients", P::N);
+        }
+        Polynomial::<P>::from(coeffs)
+    }
+
+    /// Algorithm 8 : SimplePolyCBD_eta(B)
+    /// 
+    /// Input : B in B^(64*eta)
+    /// avec eta dans {2, 3}
+    /// Output : f in Polynomial
+    pub fn sample_poly_cbd(b: &[u8], eta: usize) -> Self {
+        if (eta != 2) && (eta!= 3) {
+            panic!("Unauthorized value for eta")
+        }
+
+        if b.len() != 64 * eta {
+            panic!("Unauthorized length for b")
+        };
+
+        let b_bits = BytesToBits(b);
+        let mut coeffs = vec![0i64; P::N];
+        for i in 0..P::N {
+            let mut x = 0i64;
+            for j in 0..eta {
+                x += b_bits[2*i*eta + j] as i64;
+            }
+            let mut y = 0i64;
+            for j in 0..eta {
+                y += b_bits[2*i*eta + eta + j] as i64;
+            }
+            coeffs[i] = (x - y).rem_euclid(P::Q);
         }
         Polynomial::<P>::from(coeffs)
     }
@@ -251,6 +281,22 @@ impl<P: PolyParams> PolynomialNTT<P> {
             }
         }
         PolynomialNTT::<P>::from(a)
+    }
+}
+
+impl<P: PolyParams> Add for &PolynomialNTT<P> {
+    type Output = PolynomialNTT<P>;
+    fn add(self, rhs: Self) -> PolynomialNTT<P> {
+        let new_coeffs = self
+            .coeffs
+            .iter()
+            .zip(rhs.coeffs.iter())
+            .map(|(a, b)| (a + b).rem_euclid(P::Q))
+            .collect();
+        PolynomialNTT::<P> {
+            coeffs: new_coeffs,
+            _marker: PhantomData::<P>,
+        }
     }
 }
 

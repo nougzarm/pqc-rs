@@ -1,5 +1,25 @@
 use bitvec::prelude::*;
 
+pub fn compress(x: i64, d: u32, q: i64) -> i64 {
+    let two_pow_d = 1i64 << d;
+
+    let numerator = x * two_pow_d;
+    let rounded = (numerator + (q / 2)) / q;
+
+    rounded % two_pow_d
+}
+
+pub fn decompress(x: i64, d: u32, q: i64) -> i64 {
+    let two_pow_d = 1i64 << d;
+
+    let numerator = x * q;
+
+    let half_divisor = 1i64 << (d - 1);
+    let rounded = (numerator + half_divisor) >> d;
+
+    rounded
+}
+
 /// Algorithm 3 : BitsToBytes(b)
 /// Converts a bit array (of a length that is a multiple of eight) into an array of bytes.
 ///
@@ -23,9 +43,9 @@ pub fn BytesToBits(bytes: &[u8]) -> BitVec<u8, Lsb0> {
 ///
 /// Input : integer array F in Z_m^N, where m = 2^d if d < 12, and m = Q if d = 12
 /// Output : B in B^(32*d)
-pub fn ByteEncode<const N: usize>(F: &[i64], d: usize) -> Vec<u8> {
-    let mut bits = bitvec![u8, Lsb0; 0; N * d];
-    for i in 0..N {
+pub fn ByteEncode(F: &[i64], d: usize) -> Vec<u8> {
+    let mut bits = bitvec![u8, Lsb0; 0; F.len() * d];
+    for i in 0..F.len() {
         let a = F[i];
         for j in 0..d {
             let bit_is_set = ((a >> j) & 1) == 1;
@@ -84,7 +104,7 @@ mod tests {
 
         let f =
             PolynomialNTT::<KyberParams>::sample_ntt(b"Salut de la part de moi meme le ka").coeffs;
-        let f_rev = ByteDecode::<256, 3329>(&ByteEncode::<256>(&f, 12), 12);
+        let f_rev = ByteDecode::<256, 3329>(&ByteEncode(&f, 12), 12);
         assert_eq!(&f, &f_rev);
     }
 }
