@@ -21,5 +21,4 @@ jobs:
         run: cargo fmt -- --check
 
       - name: Run Clippy
-        # -D warnings fait échouer le CI s'il y a le moindre warning
         run: cargo clippy -- -D warnings
