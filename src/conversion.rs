@@ -41,10 +41,9 @@ pub fn bytes_to_bits(bytes: &[u8]) -> BitVec<u8, Lsb0> {
 /// Output : B in B^(32*d)
 pub fn byte_encode(f: &[i64], d: usize) -> Vec<u8> {
     let mut bits = bitvec![u8, Lsb0; 0; f.len() * d];
-    for i in 0..f.len() {
-        let a = f[i];
+    for (i, coeff) in f.iter().enumerate() {
         for j in 0..d {
-            let bit_is_set = ((a >> j) & 1) == 1;
+            let bit_is_set = ((coeff >> j) & 1) == 1;
             bits.set(i * d + j, bit_is_set);
         }
     }

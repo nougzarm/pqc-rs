@@ -92,7 +92,7 @@ impl<P: PolyParams> Polynomial<P> {
                     coeffs[j] = (coeffs[j] + t).rem_euclid(P::Q);
                 }
             }
-            len = len / 2;
+            len /= 2;
         }
         PolynomialNTT {
             coeffs,
@@ -121,11 +121,11 @@ impl<P: PolyParams> Polynomial<P> {
                     coeffs[j + len] = (zeta * (coeffs[j + len] - t)).rem_euclid(P::Q);
                 }
             }
-            len = len * 2;
+            len *= 2;
         }
 
-        for i in 0..(P::N) {
-            coeffs[i] = (coeffs[i] * P::N_INV).rem_euclid(P::Q);
+        for coeff in coeffs.iter_mut() {
+            *coeff = (*coeff * P::N_INV).rem_euclid(P::Q);
         }
 
         Polynomial {
