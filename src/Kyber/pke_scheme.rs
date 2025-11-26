@@ -1,5 +1,3 @@
-use std::marker::PhantomData;
-
 use crate::constants::PolyParams;
 use crate::conversion::{byte_decode, byte_encode, compress, decompress};
 use crate::hash::{g, prf};
@@ -22,7 +20,7 @@ impl<P: PolyParams> KPke<P> {
             eta_2,
             d_u,
             d_v,
-            _marker: PhantomData::<P>,
+            _marker: std::marker::PhantomData::<P>,
         }
     }
 
