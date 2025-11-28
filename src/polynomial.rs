@@ -79,7 +79,7 @@ impl<P: PolyParams> Polynomial<P> {
     pub fn to_ntt(&self) -> PolynomialNTT<P> {
         let mut coeffs = self.coeffs.clone();
         let mut i = 1;
-        let zetas = P::zetas().to_vec();
+        let zetas = P::zetas();
         let mut len = 128;
 
         while len > 1 {
@@ -107,7 +107,7 @@ impl<P: PolyParams> Polynomial<P> {
     /// Output : Polynomial f in R_Q (Z_Q^N)
     pub fn from_ntt(poly_ntt: &PolynomialNTT<P>) -> Self {
         let mut coeffs = poly_ntt.coeffs.clone();
-        let zetas = P::zetas().to_vec();
+        let zetas = P::zetas();
         let mut i = 127;
         let mut len = 2;
 
@@ -321,7 +321,7 @@ impl<P: PolyParams> Mul for &PolynomialNTT<P> {
     fn mul(self, rhs: Self) -> Self::Output {
         let mut new_coeffs = vec![0i64; P::N];
 
-        let zetas = P::zetas().to_vec();
+        let zetas = P::zetas();
         for i in 0..128 {
             let gamma = ((zetas[i] * zetas[i]).rem_euclid(P::Q) * P::ZETA).rem_euclid(P::Q);
             new_coeffs[2 * i] = (self[2 * i] * rhs[2 * i]
